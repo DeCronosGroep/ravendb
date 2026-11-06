@@ -10,6 +10,12 @@ namespace Raven.Client.Documents.Operations.ETL
 
         public int? LoadRequestTimeoutInSec { get; set; }
 
+        /// <summary>
+        /// When enabled, the destination keeps a document as-is if the transformed result equals what it already stores,
+        /// so its etag doesn't change and nothing downstream (indexes, subscriptions, revisions, replication, ETL) is triggered.
+        /// </summary>
+        public bool SkipOverwriteIfUnchanged { get; set; }
+
         public override EtlType EtlType => EtlType.Raven;
 
         public override string GetDestination()
@@ -42,6 +48,9 @@ namespace Raven.Client.Documents.Operations.ETL
             {
                 if (ravenConfig.LoadRequestTimeoutInSec != LoadRequestTimeoutInSec)
                     diff |= EtlConfigurationCompareDifferences.ConfigurationOptions;
+
+                if (ravenConfig.SkipOverwriteIfUnchanged != SkipOverwriteIfUnchanged)
+                    diff |= EtlConfigurationCompareDifferences.ConfigurationOptions;
             }
 
             return diff;
@@ -52,6 +61,7 @@ namespace Raven.Client.Documents.Operations.ETL
             var result = base.ToJson();
 
             result[nameof(LoadRequestTimeoutInSec)] = LoadRequestTimeoutInSec;
+            result[nameof(SkipOverwriteIfUnchanged)] = SkipOverwriteIfUnchanged;
 
             return result;
         }
